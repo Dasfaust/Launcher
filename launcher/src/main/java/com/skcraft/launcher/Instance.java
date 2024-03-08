@@ -12,6 +12,7 @@ import com.google.common.io.Files;
 import com.skcraft.launcher.launch.JavaProcessBuilder;
 import com.skcraft.launcher.model.modpack.LaunchModifier;
 import lombok.Data;
+import lombok.Getter;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,6 +35,7 @@ public class Instance implements Comparable<Instance> {
     @JsonProperty("launch")
     private LaunchModifier launchModifier;
     private InstanceSettings settings = new InstanceSettings();
+    @Getter private URL IconUrl;
 
     @JsonIgnore private File dir;
     @JsonIgnore private URL manifestURL;

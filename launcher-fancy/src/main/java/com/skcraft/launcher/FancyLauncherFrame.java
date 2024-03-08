@@ -12,6 +12,7 @@ import com.skcraft.launcher.swing.WebpagePanel;
 import lombok.NonNull;
 
 import javax.swing.*;
+import java.net.URL;
 
 public class FancyLauncherFrame extends LauncherFrame {
 
@@ -37,8 +38,8 @@ public class FancyLauncherFrame extends LauncherFrame {
     }
 
     @Override
-    protected WebpagePanel createNewsPanel() {
-        WebpagePanel panel = super.createNewsPanel();
+    protected WebpagePanel createNewsPanel(URL url) {
+        WebpagePanel panel = super.createNewsPanel(url);
         panel.setBrowserBorder(BorderFactory.createEmptyBorder());
         return panel;
     }

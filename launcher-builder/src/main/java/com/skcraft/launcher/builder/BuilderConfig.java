@@ -27,6 +27,9 @@ public class BuilderConfig {
     private LaunchModifier launchModifier = new LaunchModifier();
     private List<FeaturePattern> features = Lists.newArrayList();
     private FnPatternList userFiles = new FnPatternList();
+    private String defaultJVMArguments;
+    private int defaultHeapAllocation;
+    private boolean isPreview;
 
     public void setLaunchModifier(LaunchModifier launchModifier) {
         this.launchModifier = launchModifier != null ? launchModifier : new LaunchModifier();
@@ -40,11 +43,22 @@ public class BuilderConfig {
         this.userFiles = userFiles != null ? userFiles : new FnPatternList();
     }
 
+    public void setDefaultJVMArguments(String defaultArgs) {
+        this.defaultJVMArguments = defaultArgs == null ? "" : defaultArgs;
+    }
+
+    public void setDefaultHeapAllocation(int amount) {
+        this.defaultHeapAllocation = Math.max(1, amount);
+    }
+
     public void update(Manifest manifest) {
         manifest.updateName(getName());
         manifest.updateTitle(getTitle());
         manifest.updateGameVersion(getGameVersion());
         manifest.setLaunchModifier(getLaunchModifier());
+        manifest.setDefaultJVMArguments(defaultJVMArguments);
+        manifest.setDefaultHeapAllocation(defaultHeapAllocation);
+        manifest.setPreview(isPreview);
     }
 
     public void registerProperties(PropertiesApplicator applicator) {

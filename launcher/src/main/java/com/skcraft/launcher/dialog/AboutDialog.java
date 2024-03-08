@@ -34,11 +34,15 @@ public class AboutDialog extends JDialog {
                 "launcher platform that anyone can use."), "wrap, gapbottom unrel");
         container.add(new JLabel("<html>SKCraft does not necessarily endorse the version of<br>" +
                 "the launcher that you are using."), "wrap, gapbottom unrel");
+        container.add(new JLabel("<html>This fork of SKCraft Launcher is created and maintained<br>" +
+                "by Dasfaust."), "wrap, gapbottom unrel");
 
         JButton okButton = new JButton("OK");
         JButton sourceCodeButton = new JButton("Website");
+        JButton forkSourceCodeButton = new JButton("Source");
 
         container.add(sourceCodeButton, "span, split 3, sizegroup bttn");
+        container.add(forkSourceCodeButton, "span, split 3, sizegroup bttn");
         container.add(okButton, "tag ok, sizegroup bttn");
 
         add(container, BorderLayout.CENTER);
@@ -48,6 +52,7 @@ public class AboutDialog extends JDialog {
 
         okButton.addActionListener(ActionListeners.dispose(this));
         sourceCodeButton.addActionListener(ActionListeners.openURL(this, "https://github.com/SKCraft/Launcher"));
+        forkSourceCodeButton.addActionListener(ActionListeners.openURL(this, "https://github.com/Dasfaust/Launcher"));
     }
 
     public static void showAboutDialog(Window parent) {

@@ -21,9 +21,11 @@ public class FileVerify implements InstallTask {
 
 		String actualHash = FileUtils.getShaHash(target);
 		if (!actualHash.equals(hash)) {
+			boolean targetDeleted = target.delete();
+			String deleteResult = targetDeleted ? "File deleted successfully. Please try launching again." : "Unable to delete corrupted file. Please ask for help in Discord.";
 			String message = String.format(
 					"File %s (%s) is corrupt (invalid hash)\n" +
-					"Expected '%s'\nGot '%s'",
+					"Expected '%s'\nGot '%s'\n" + deleteResult,
 					name, target.getAbsolutePath(), hash, actualHash);
 
 			throw new LauncherException(message, message);

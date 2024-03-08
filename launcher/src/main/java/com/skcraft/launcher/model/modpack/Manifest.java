@@ -47,6 +47,9 @@ public class Manifest extends BaseManifest {
     private Installer installer;
     private VersionManifest versionManifest;
     private Map<String, LoaderManifest> loaders = new HashMap<String, LoaderManifest>();
+    private int defaultHeapAllocation;
+    private String defaultJVMArguments;
+    private boolean isPreview;
 
     @JsonIgnore
     public URL getLibrariesUrl() {

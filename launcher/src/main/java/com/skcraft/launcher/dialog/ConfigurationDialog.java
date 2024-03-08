@@ -35,9 +35,10 @@ public class ConfigurationDialog extends JDialog {
 
     private final JPanel tabContainer = new JPanel(new BorderLayout());
     private final JTabbedPane tabbedPane = new JTabbedPane();
+    private final FormPanel launcherSettingsPanel = new FormPanel();
     private final FormPanel javaSettingsPanel = new FormPanel();
-    private final JComboBox<JavaRuntime> jvmRuntime = new BetterComboBox<>();
-    private final JTextField jvmArgsText = new JTextField();
+    private final JComboBox<JavaRuntime> jvmRuntime = new JComboBox<>();
+    private final JTextArea jvmArgsText = new JTextArea(5, 10);
     private final JSpinner minMemorySpinner = new JSpinner();
     private final JSpinner maxMemorySpinner = new JSpinner();
     private final JSpinner permGenSpinner = new JSpinner();
@@ -55,8 +56,8 @@ public class ConfigurationDialog extends JDialog {
     private final LinedBoxPanel buttonsPanel = new LinedBoxPanel(true);
     private final JButton okButton = new JButton(SharedLocale.tr("button.ok"));
     private final JButton cancelButton = new JButton(SharedLocale.tr("button.cancel"));
-    private final JButton aboutButton = new JButton(SharedLocale.tr("options.about"));
-    private final JButton logButton = new JButton(SharedLocale.tr("options.launcherConsole"));
+    private final JCheckBox useInstanceJVMSettingsCheck = new JCheckBox(SharedLocale.tr("options.useInstanceJVMSettings"));
+    private final JCheckBox showConsoleOnLaunch = new JCheckBox(SharedLocale.tr("options.showConsoleOnLaunch"));
 
     /**
      * Create a new configuration dialog.
@@ -103,15 +104,26 @@ public class ConfigurationDialog extends JDialog {
         mapper.map(proxyUsernameText, "proxyUsername");
         mapper.map(proxyPasswordText, "proxyPassword");
         mapper.map(gameKeyText, "gameKey");
+        mapper.map(useInstanceJVMSettingsCheck, "useInstanceJVMSettings");
+        mapper.map(showConsoleOnLaunch, "showConsoleOnLaunch");
 
         mapper.copyFromObject();
     }
 
     private void initComponents() {
+        launcherSettingsPanel.addRow(showConsoleOnLaunch);
+        tabbedPane.addTab(SharedLocale.tr("options.launcherTab"), SwingHelper.alignTabbedPane(launcherSettingsPanel));
+
         javaSettingsPanel.addRow(new JLabel(SharedLocale.tr("options.jvmPath")), jvmRuntime);
-        javaSettingsPanel.addRow(new JLabel(SharedLocale.tr("options.jvmArguments")), jvmArgsText);
-        javaSettingsPanel.addRow(Box.createVerticalStrut(15));
-        javaSettingsPanel.addRow(new JLabel(SharedLocale.tr("options.64BitJavaWarning")));
+        javaSettingsPanel.addRow(useInstanceJVMSettingsCheck);
+        if (config.isUseInstanceJVMSettings()) {
+            toggleJVMOptionsEnabled(false);
+        }
+        javaSettingsPanel.addRow(new JLabel());
+        jvmArgsText.setLineWrap(true);
+        JScrollPane scroll = SwingHelper.wrapScrollPane(jvmArgsText);
+        scroll.setMinimumSize(new Dimension(0, jvmArgsText.getPreferredSize().height));
+        javaSettingsPanel.addRow(scroll);
         javaSettingsPanel.addRow(new JLabel(SharedLocale.tr("options.minMemory")), minMemorySpinner);
         javaSettingsPanel.addRow(new JLabel(SharedLocale.tr("options.maxMemory")), maxMemorySpinner);
         javaSettingsPanel.addRow(new JLabel(SharedLocale.tr("options.permGen")), permGenSpinner);
@@ -135,8 +147,6 @@ public class ConfigurationDialog extends JDialog {
         SwingHelper.removeOpaqueness(advancedPanel);
         tabbedPane.addTab(SharedLocale.tr("options.advancedTab"), SwingHelper.alignTabbedPane(advancedPanel));
 
-        buttonsPanel.addElement(logButton);
-        buttonsPanel.addElement(aboutButton);
         buttonsPanel.addGlue();
         buttonsPanel.addElement(okButton);
         buttonsPanel.addElement(cancelButton);
@@ -150,24 +160,10 @@ public class ConfigurationDialog extends JDialog {
 
         cancelButton.addActionListener(ActionListeners.dispose(this));
 
-        aboutButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                AboutDialog.showAboutDialog(ConfigurationDialog.this);
-            }
-        });
-
         okButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 save();
-            }
-        });
-
-        logButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ConsoleFrame.showMessages();
             }
         });
 
@@ -192,6 +188,17 @@ public class ConfigurationDialog extends JDialog {
                 }
             }
         });
+
+        useInstanceJVMSettingsCheck.addActionListener(e -> {
+            toggleJVMOptionsEnabled(!useInstanceJVMSettingsCheck.isSelected());
+        });
+    }
+
+    private void toggleJVMOptionsEnabled(boolean toggle) {
+        jvmArgsText.setEnabled(toggle);
+        minMemorySpinner.setEnabled(toggle);
+        maxMemorySpinner.setEnabled(toggle);
+        permGenSpinner.setEnabled(toggle);
     }
 
     /**

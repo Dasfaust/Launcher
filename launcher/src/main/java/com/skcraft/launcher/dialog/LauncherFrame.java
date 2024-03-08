@@ -25,13 +25,13 @@ import javax.swing.*;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.lang.ref.WeakReference;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import static com.skcraft.launcher.util.SharedLocale.tr;
 
@@ -48,13 +48,16 @@ public class LauncherFrame extends JFrame {
     private final InstanceTableModel instancesModel;
     @Getter
     private final JScrollPane instanceScroll = new JScrollPane(instancesTable);
-    private WebpagePanel webView;
+    private WebpagePanel webViewHome;
+    private WebpagePanel webViewSelection;
     private JSplitPane splitPane;
+    private final JTabbedPane tabbedPane = new JTabbedPane();
     private final JButton launchButton = new JButton(SharedLocale.tr("launcher.launch"));
     private final JButton refreshButton = new JButton(SharedLocale.tr("launcher.checkForUpdates"));
-    private final JButton optionsButton = new JButton(SharedLocale.tr("launcher.options"));
+    @Getter private final JMenuItem optionsMenu = new JMenuItem(SharedLocale.tr("launcher.options"));
+    @Getter private final JMenuItem consoleMenu = new JMenuItem(SharedLocale.tr("options.launcherConsole"));
+    @Getter private final JMenuItem aboutMenu = new JMenuItem(SharedLocale.tr("options.about"));
     private final JButton selfUpdateButton = new JButton(SharedLocale.tr("launcher.updateLauncher"));
-    private final JCheckBox updateCheck = new JCheckBox(SharedLocale.tr("launcher.downloadUpdates"));
 
     /**
      * Create a new frame.
@@ -68,7 +71,7 @@ public class LauncherFrame extends JFrame {
         instancesModel = new InstanceTableModel(launcher.getInstances());
 
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        setMinimumSize(new Dimension(400, 300));
+        setMinimumSize(new Dimension(600, 300));
         initComponents();
         pack();
         setLocationRelativeTo(null);
@@ -87,8 +90,12 @@ public class LauncherFrame extends JFrame {
         JPanel container = createContainerPanel();
         container.setLayout(new MigLayout("fill, insets dialog", "[][]push[][]", "[grow][]"));
 
-        webView = createNewsPanel();
-        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, instanceScroll, webView);
+        tabbedPane.setBorder(null);
+        tabbedPane.setOpaque(false);
+        webViewHome = createNewsPanel(launcher.getNewsURL());
+        tabbedPane.addTab(SharedLocale.tr("launcher.home"), webViewHome);
+
+        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, instanceScroll, tabbedPane);
         selfUpdateButton.setVisible(launcher.getUpdateManager().getPendingUpdate());
 
         launcher.getUpdateManager().addPropertyChangeListener(new PropertyChangeListener() {
@@ -96,23 +103,43 @@ public class LauncherFrame extends JFrame {
             public void propertyChange(PropertyChangeEvent evt) {
                 if (evt.getPropertyName().equals("pendingUpdate")) {
                     selfUpdateButton.setVisible((Boolean) evt.getNewValue());
-
                 }
             }
         });
 
-        updateCheck.setSelected(true);
+        int ctrlKeyMask = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+
+        optionsMenu.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, ctrlKeyMask));
+        consoleMenu.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.SHIFT_MASK));
+
+        JMenuBar menuBar;
+        JMenu menu;
+
+        menuBar = new JMenuBar();
+        menuBar.setBorder(BorderFactory.createEmptyBorder());
+
+        Insets menuInset = new Insets(2, 2, 2, 2);
+
+        menu = new JMenu("File");
+        menu.setMargin(menuInset);
+        menu.setMnemonic('f');
+        menuBar.add(menu);
+        menu.add(optionsMenu);
+        menu.add(consoleMenu);
+        menu.addSeparator();
+        menu.add(aboutMenu);
+
+        setJMenuBar(menuBar);
+
         instancesTable.setModel(instancesModel);
         launchButton.setFont(launchButton.getFont().deriveFont(Font.BOLD));
-        splitPane.setDividerLocation(200);
+        splitPane.setDividerLocation(250);
         splitPane.setDividerSize(4);
         splitPane.setOpaque(false);
         container.add(splitPane, "grow, wrap, span 5, gapbottom unrel, w null:680, h null:350");
         SwingHelper.flattenJSplitPane(splitPane);
         container.add(refreshButton);
-        container.add(updateCheck);
         container.add(selfUpdateButton);
-        container.add(optionsButton);
         container.add(launchButton);
 
         add(container, BorderLayout.CENTER);
@@ -133,7 +160,10 @@ public class LauncherFrame extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 loadInstances();
                 launcher.getUpdateManager().checkForUpdate(LauncherFrame.this);
-                webView.browse(launcher.getNewsURL(), false);
+                webViewHome.browse(launcher.getNewsURL(), false);
+                if (webViewSelection != null) {
+                    webViewSelection.browse(webViewSelection.getUrl(), false);
+                }
             }
         });
 
@@ -144,10 +174,24 @@ public class LauncherFrame extends JFrame {
             }
         });
 
-        optionsButton.addActionListener(new ActionListener() {
+        optionsMenu.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 showOptions();
+            }
+        });
+
+        consoleMenu.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ConsoleFrame.showMessages();
+            }
+        });
+
+        aboutMenu.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                AboutDialog.showAboutDialog(LauncherFrame.this);
             }
         });
 
@@ -170,6 +214,27 @@ public class LauncherFrame extends JFrame {
                 popupInstanceMenu(e.getComponent(), e.getX(), e.getY(), selected);
             }
         });
+
+        instancesTable.addMouseListener(new SelectionMouseAdapter() {
+            @Override
+            protected void onSelected(MouseEvent e) {
+                int index = instancesTable.rowAtPoint(e.getPoint());
+                if (index >= 0) {
+                    instancesTable.setRowSelectionInterval(index, index);
+                    Instance selected = launcher.getInstances().get(index);
+
+                    tabbedPane.setSelectedIndex(1);
+
+                    if (selected.isSelected()) {
+                        return;
+                    }
+
+                    URL newsUrl = launcher.getNewsInstanceURL(selected.getName());
+                    tabbedPane.setTitleAt(1, selected.getTitle());
+                    webViewSelection.browse(newsUrl, false);
+                }
+            }
+        });
     }
 
     protected JPanel createContainerPanel() {
@@ -181,8 +246,8 @@ public class LauncherFrame extends JFrame {
      *
      * @return the news panel
      */
-    protected WebpagePanel createNewsPanel() {
-        return WebpagePanel.forURL(launcher.getNewsURL(), false);
+    protected WebpagePanel createNewsPanel(URL url) {
+        return WebpagePanel.forURL(url, false);
     }
 
     /**
@@ -243,7 +308,7 @@ public class LauncherFrame extends JFrame {
 
                 menuItem = new JMenuItem(SharedLocale.tr("instance.openSettings"));
                 menuItem.addActionListener(e -> {
-                    InstanceSettingsDialog.open(this, selected);
+                    InstanceSettingsDialog.open(this, selected, launcher);
                 });
                 popup.add(menuItem);
 
@@ -347,6 +412,12 @@ public class LauncherFrame extends JFrame {
 
         ProgressDialog.showProgress(this, future, SharedLocale.tr("launcher.checkingTitle"), SharedLocale.tr("launcher.checkingStatus"));
         SwingHelper.addErrorDialogCallback(this, future);
+
+        if (webViewSelection == null) {
+            Instance selected = launcher.getInstances().get(instancesTable.getSelectedRow());
+            webViewSelection = createNewsPanel(launcher.getNewsInstanceURL(selected.getName()));
+            tabbedPane.addTab(selected.getTitle(), webViewSelection);
+        }
     }
 
     private void showOptions() {
@@ -355,13 +426,12 @@ public class LauncherFrame extends JFrame {
     }
 
     private void launch() {
-        boolean permitUpdate = updateCheck.isSelected();
         Instance instance = launcher.getInstances().get(instancesTable.getSelectedRow());
 
         LaunchOptions options = new LaunchOptions.Builder()
                 .setInstance(instance)
                 .setListener(new LaunchListenerImpl(this))
-                .setUpdatePolicy(permitUpdate ? UpdatePolicy.UPDATE_IF_SESSION_ONLINE : UpdatePolicy.NO_UPDATE)
+                .setUpdatePolicy(UpdatePolicy.UPDATE_IF_SESSION_ONLINE)
                 .setWindow(this)
                 .build();
         launcher.getLaunchSupervisor().launch(options);

@@ -23,7 +23,7 @@ public class WindowsRuntimeFinder implements PlatformRuntimeFinder {
 
 			launcherDirs.add(new File(launcherPath));
 		} catch (Throwable err) {
-			log.log(Level.WARNING, "Failed to read launcher location from registry", err);
+			log.log(Level.FINE, "Failed to read launcher location from registry", err);
 		}
 
 		String programFiles = Objects.equals(env.getArchBits(), "64")
@@ -65,7 +65,7 @@ public class WindowsRuntimeFinder implements PlatformRuntimeFinder {
 				}
 			}
 		} catch (Throwable err) {
-			log.log(Level.INFO, "Failed to read Java locations from registry in " + basePath);
+			log.log(Level.FINE, "Failed to read Java locations from registry in " + basePath);
 		}
 	}
 

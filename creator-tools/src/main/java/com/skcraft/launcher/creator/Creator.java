@@ -6,6 +6,7 @@
 
 package com.skcraft.launcher.creator;
 
+import com.formdev.flatlaf.FlatDarkLaf;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.skcraft.launcher.Launcher;
@@ -75,7 +76,7 @@ public class Creator {
 
         SwingUtilities.invokeAndWait(() -> {
             SwingHelper.setSwingProperties("Modpack Creator");
-            SwingHelper.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            FlatDarkLaf.setup();
 
             try {
                 creator.showWelcome();

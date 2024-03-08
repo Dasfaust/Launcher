@@ -29,5 +29,4 @@ public abstract class PopupMouseAdapter extends MouseAdapter {
     }
 
     protected abstract void showPopup(MouseEvent e);
-
 }

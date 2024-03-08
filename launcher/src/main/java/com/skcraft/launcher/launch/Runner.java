@@ -242,7 +242,10 @@ public class Runner implements Callable<Process>, ProgressObservable {
      * @throws IOException on I/O error
      */
     private void addJvmArgs() throws IOException, LauncherException {
-        Optional<MemorySettings> memorySettings = Optional.ofNullable(instance.getSettings().getMemorySettings());
+        Optional<MemorySettings> memorySettings = Optional.empty();
+        if (launcher.getConfig().isUseInstanceJVMSettings()) {
+            memorySettings = Optional.ofNullable(instance.getSettings().getMemorySettings());
+        }
 
         int minMemory = memorySettings
                 .map(MemorySettings::getMinMemory)

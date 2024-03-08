@@ -16,6 +16,7 @@ import com.skcraft.launcher.LauncherException;
 import com.skcraft.launcher.dialog.FeatureSelectionDialog;
 import com.skcraft.launcher.dialog.ProgressDialog;
 import com.skcraft.launcher.install.*;
+import com.skcraft.launcher.launch.MemorySettings;
 import com.skcraft.launcher.model.loader.LoaderManifest;
 import com.skcraft.launcher.model.loader.LocalLoader;
 import com.skcraft.launcher.model.minecraft.*;
@@ -99,6 +100,11 @@ public abstract class BaseUpdater {
                 .returnContent()
                 .saveContent(instance.getManifestPath())
                 .asJson(Manifest.class);
+
+        instance.getSettings().setMemorySettings(new MemorySettings());
+        instance.getSettings().getMemorySettings().setMinMemory(manifest.getDefaultHeapAllocation() * 1024);
+        instance.getSettings().getMemorySettings().setMaxMemory(manifest.getDefaultHeapAllocation() * 1024);
+        instance.getSettings().setCustomJvmArgs(manifest.getDefaultJVMArguments());
 
         if (manifest.getMinimumVersion() > Launcher.PROTOCOL_VERSION) {
             throw new LauncherException("Update required", SharedLocale.tr("errors.updateRequiredError"));

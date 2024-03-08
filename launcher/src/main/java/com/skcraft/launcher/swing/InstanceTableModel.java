@@ -11,20 +11,20 @@ import com.skcraft.launcher.InstanceList;
 import com.skcraft.launcher.Launcher;
 import com.skcraft.launcher.util.SharedLocale;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.util.ArrayList;
 
 public class InstanceTableModel extends AbstractTableModel {
 
     private final InstanceList instances;
-    private final Icon instanceIcon;
-    private final Icon customInstanceIcon;
     private final Icon downloadIcon;
 
     public InstanceTableModel(InstanceList instances) {
         this.instances = instances;
-        instanceIcon = SwingHelper.createIcon(Launcher.class, "instance_icon.png", 16, 16);
-        customInstanceIcon = SwingHelper.createIcon(Launcher.class, "custom_instance_icon.png", 16, 16);
         downloadIcon = SwingHelper.createIcon(Launcher.class, "download_icon.png", 14, 14);
     }
 
@@ -97,16 +97,16 @@ public class InstanceTableModel extends AbstractTableModel {
         switch (columnIndex) {
             case 0:
                 instance = instances.get(rowIndex);
-                if (!instance.isLocal()) {
+
+                try {
+                    BufferedImage img = ImageIO.read(instance.getIconUrl());
+                    return new ImageIcon(img);
+                } catch (IOException e) {
                     return downloadIcon;
-                } else if (instance.getManifestURL() != null) {
-                    return instanceIcon;
-                } else {
-                    return customInstanceIcon;
                 }
             case 1:
                 instance = instances.get(rowIndex);
-                return instance.getTitle();
+                return "<html><span style='font-size: 13px; margin: 0px;'>" + instance.getTitle() + "</span><br>" + instance.getVersion() + "</html>";
             default:
                 return null;
         }

@@ -8,6 +8,9 @@ package com.skcraft.launcher.model.modpack;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+
+import java.net.URL;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -15,6 +18,8 @@ public class ManifestInfo extends BaseManifest implements Comparable<ManifestInf
 
     private String location;
     private int priority;
+    @Getter
+    private URL iconUrl;
 
     @Override
     public int compareTo(ManifestInfo o) {

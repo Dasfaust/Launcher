@@ -13,13 +13,14 @@ public class InstanceTable extends DefaultTable {
     public InstanceTable() {
         super();
         setTableHeader(null);
+        setRowHeight(64);
     }
 
     @Override
     public void setModel(TableModel dataModel) {
         super.setModel(dataModel);
         try {
-            getColumnModel().getColumn(0).setMaxWidth(24);
+            getColumnModel().getColumn(0).setMaxWidth(64);
         } catch (ArrayIndexOutOfBoundsException e) {
         }
     }

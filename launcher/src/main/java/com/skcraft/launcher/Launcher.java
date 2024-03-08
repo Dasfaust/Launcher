@@ -8,6 +8,7 @@ package com.skcraft.launcher;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
+import com.formdev.flatlaf.FlatDarkLaf;
 import com.google.common.base.Strings;
 import com.google.common.base.Supplier;
 import com.google.common.util.concurrent.ListeningExecutorService;
@@ -331,10 +332,18 @@ public final class Launcher {
      * @return the news URL
      */
     public URL getNewsURL() {
+        return HttpRequest.url(getProperties().getProperty("newsUrl"));
+    }
+
+    /**
+     * Get the news instance URL.
+     *
+     * @return the news URL
+     */
+    public URL getNewsInstanceURL(String name) {
         try {
             return HttpRequest.url(
-                    String.format(getProperties().getProperty("newsUrl"),
-                            URLEncoder.encode(getVersion(), "UTF-8")));
+                    String.format(getProperties().getProperty("newsInstanceUrl"), URLEncoder.encode(name, "UTF-8")));
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
@@ -456,7 +465,9 @@ public final class Launcher {
                 try {
                     Launcher launcher = createFromArguments(args);
                     SwingHelper.setSwingProperties(tr("launcher.appTitle", launcher.getVersion()));
-                    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+                    //FlatOneDarkIJTheme.installLafInfo();
+                    //FlatOneDarkIJTheme.setup();
+                    FlatDarkLaf.setup();
                     launcher.showLauncherWindow();
                 } catch (Throwable t) {
                     log.log(Level.WARNING, "Load failure", t);

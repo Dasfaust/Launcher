@@ -27,7 +27,10 @@ public class BuilderConfigDialog extends JDialog {
     private final JTextField nameText = new JTextField(20);
     private final JTextField titleText = new JTextField(30);
     private final JTextField gameVersionText = new JTextField(10);
+    private final JCheckBox isPreviewCheckbox = new JCheckBox("Is Preview");
     private final JTextArea launchFlagsArea = new JTextArea(10, 40);
+    private final JTextArea defaultJVMFlagsArea = new JTextArea(10, 40);
+    private final JTextField defaultHeapText = new JTextField(30);
     private final JTextArea userFilesIncludeArea = new JTextArea(15, 40);
     private final JTextArea userFilesExcludeArea = new JTextArea(8, 40);
     private final FeaturePatternTable featuresTable = new FeaturePatternTable();
@@ -57,9 +60,12 @@ public class BuilderConfigDialog extends JDialog {
         titleText.setComponentPopupMenu(TextFieldPopupMenu.INSTANCE);
         gameVersionText.setComponentPopupMenu(TextFieldPopupMenu.INSTANCE);
         launchFlagsArea.setComponentPopupMenu(TextFieldPopupMenu.INSTANCE);
+        defaultJVMFlagsArea.setComponentPopupMenu(TextFieldPopupMenu.INSTANCE);
+        defaultHeapText.setComponentPopupMenu(TextFieldPopupMenu.INSTANCE);
         userFilesIncludeArea.setComponentPopupMenu(TextFieldPopupMenu.INSTANCE);
 
         launchFlagsArea.setFont(nameText.getFont());
+        defaultJVMFlagsArea.setFont(nameText.getFont());
         userFilesIncludeArea.setFont(nameText.getFont());
         userFilesExcludeArea.setFont(nameText.getFont());
 
@@ -122,6 +128,8 @@ public class BuilderConfigDialog extends JDialog {
         container.add(new JLabel("Game Version:"));
         container.add(gameVersionText, "span");
 
+        container.add(isPreviewCheckbox);
+
         return container;
     }
 
@@ -132,6 +140,10 @@ public class BuilderConfigDialog extends JDialog {
 
         container.add(new JLabel("Launch Flags:"), "wrap");
         container.add(SwingHelper.wrapScrollPane(launchFlagsArea), "span");
+        container.add(new JLabel("Default JVM Arguments:"), "wrap");
+        container.add(SwingHelper.wrapScrollPane(defaultJVMFlagsArea), "span");
+        container.add(new JLabel("Default Heap Amount:"));
+        container.add(defaultHeapText);
 
         return container;
     }
@@ -203,6 +215,8 @@ public class BuilderConfigDialog extends JDialog {
         SwingHelper.setTextAndResetCaret(titleText, config.getTitle());
         SwingHelper.setTextAndResetCaret(gameVersionText, config.getGameVersion());
         SwingHelper.setTextAndResetCaret(launchFlagsArea, SwingHelper.listToLines(config.getLaunchModifier().getFlags()));
+        SwingHelper.setTextAndResetCaret(defaultJVMFlagsArea, config.getDefaultJVMArguments());
+        SwingHelper.setTextAndResetCaret(defaultHeapText, Integer.toString(config.getDefaultHeapAllocation()));
         SwingHelper.setTextAndResetCaret(userFilesIncludeArea, SwingHelper.listToLines(config.getUserFiles().getInclude()));
         SwingHelper.setTextAndResetCaret(userFilesExcludeArea, SwingHelper.listToLines(config.getUserFiles().getExclude()));
         featuresModel = new FeaturePatternTableModel(config.getFeatures());
@@ -213,6 +227,9 @@ public class BuilderConfigDialog extends JDialog {
         config.setName(nameText.getText().trim());
         config.setTitle(Strings.emptyToNull(titleText.getText().trim()));
         config.setGameVersion(gameVersionText.getText().trim());
+        config.setDefaultHeapAllocation(Integer.parseInt(defaultHeapText.getText()));
+        config.setDefaultJVMArguments(defaultJVMFlagsArea.getText());
+        config.setPreview(isPreviewCheckbox.isSelected());
 
         LaunchModifier launchModifier = config.getLaunchModifier();
         FnPatternList userFiles = config.getUserFiles();

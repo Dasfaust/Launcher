@@ -6,6 +6,7 @@
 
 package com.skcraft.launcher;
 
+import com.formdev.flatlaf.FlatDarkLaf;
 import com.skcraft.launcher.bootstrap.*;
 import lombok.Getter;
 import lombok.extern.java.Log;
@@ -179,7 +180,7 @@ public class Bootstrap {
 
     public static void setSwingLookAndFeel() {
         try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            FlatDarkLaf.setup();
         } catch (Throwable e) {
         }
     }

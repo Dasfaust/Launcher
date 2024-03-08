@@ -49,10 +49,10 @@ public class MessageLog extends JPanel {
         this.colorEnabled = colorEnabled;
         
         this.highlightedAttributes = new SimpleAttributeSet();
-        StyleConstants.setForeground(highlightedAttributes, new Color(0xFF7F00));
+        StyleConstants.setForeground(highlightedAttributes, Color.decode("#FFFF55"));
         
         this.errorAttributes = new SimpleAttributeSet();
-        StyleConstants.setForeground(errorAttributes, new Color(0xFF0000));
+        StyleConstants.setForeground(errorAttributes, Color.decode("#FF5555"));
         this.infoAttributes = new SimpleAttributeSet();
         this.debugAttributes = new SimpleAttributeSet();
 
@@ -78,6 +78,7 @@ public class MessageLog extends JPanel {
         }
 
         textComponent.setFont(new JLabel().getFont());
+        textComponent.setBackground(Color.decode("#191919"));
         textComponent.setEditable(false);
         textComponent.setComponentPopupMenu(TextFieldPopupMenu.INSTANCE);
         DefaultCaret caret = (DefaultCaret) textComponent.getCaret();
