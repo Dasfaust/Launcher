@@ -9,7 +9,7 @@ Adapted for use with [Depot](https://github.com/Dasfaust/Depot/), a backend buil
 
 ## Screenshots
 
-
+![screenshot](https://github.com/Dasfaust/Launcher/blob/master/docs/1.1.1_screenshot.png?raw=true)
 
 SKCraft Launcher
 ================
