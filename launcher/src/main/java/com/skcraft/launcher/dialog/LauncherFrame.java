@@ -229,7 +229,7 @@ public class LauncherFrame extends JFrame {
                         return;
                     }
 
-                    URL newsUrl = launcher.getNewsInstanceURL(selected.getName());
+                    URL newsUrl = selected.getNewsUrl();
                     tabbedPane.setTitleAt(1, selected.getTitle());
                     webViewSelection.browse(newsUrl, false);
                 }
@@ -415,7 +415,7 @@ public class LauncherFrame extends JFrame {
 
         if (webViewSelection == null) {
             Instance selected = launcher.getInstances().get(instancesTable.getSelectedRow());
-            webViewSelection = createNewsPanel(launcher.getNewsInstanceURL(selected.getName()));
+            webViewSelection = createNewsPanel(selected.getNewsUrl());
             tabbedPane.addTab(selected.getTitle(), webViewSelection);
         }
     }

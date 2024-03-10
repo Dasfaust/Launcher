@@ -153,7 +153,17 @@ public class InstanceList {
 
                             instance.setTitle(manifest.getTitle());
                             instance.setPriority(manifest.getPriority());
-                            URL url = concat(packagesURL, manifest.getLocation());
+                            instance.setIconUrl(manifest.getIconUrl());
+                            instance.setDomainName(manifest.getDomainName());
+                            instance.setNewsUrl(manifest.getNewsUrl());
+
+                            URL url;
+                            if (manifest.getLocation().startsWith("http")) {
+                                url = new URL(manifest.getLocation());
+                            } else {
+                                url = concat(packagesURL, manifest.getLocation());
+                            }
+
                             instance.setManifestURL(url);
                             instance.setIconUrl(manifest.getIconUrl());
 
@@ -183,6 +193,9 @@ public class InstanceList {
                         instance.setUpdatePending(true);
                         instance.setLocal(false);
                         instance.setIconUrl(manifest.getIconUrl());
+                        instance.setDomainName(manifest.getDomainName());
+                        instance.setNewsUrl(manifest.getNewsUrl());
+
                         remote.add(instance);
 
                         log.info("Available remote instance: '" + instance.getName() +

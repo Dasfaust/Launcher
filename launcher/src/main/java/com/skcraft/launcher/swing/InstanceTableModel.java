@@ -106,7 +106,7 @@ public class InstanceTableModel extends AbstractTableModel {
                 }
             case 1:
                 instance = instances.get(rowIndex);
-                return "<html><span style='font-size: 13px; margin: 0px;'>" + instance.getTitle() + "</span><br>" + instance.getVersion() + "</html>";
+                return "<html><strong>" + instance.getTitle() + "</strong><br><em>" + instance.getDomainName() + "</em><br>(v" + instance.getVersion() + ")</html>";
             default:
                 return null;
         }

@@ -53,7 +53,7 @@ import static com.skcraft.launcher.util.SharedLocale.tr;
 @Log
 public final class Launcher {
 
-    public static final int PROTOCOL_VERSION = 3;
+    public static final int PROTOCOL_VERSION = 4;
 
     @Getter
     private final ListeningExecutorService executor = MoreExecutors.listeningDecorator(Executors.newCachedThreadPool());
@@ -333,20 +333,6 @@ public final class Launcher {
      */
     public URL getNewsURL() {
         return HttpRequest.url(getProperties().getProperty("newsUrl"));
-    }
-
-    /**
-     * Get the news instance URL.
-     *
-     * @return the news URL
-     */
-    public URL getNewsInstanceURL(String name) {
-        try {
-            return HttpRequest.url(
-                    String.format(getProperties().getProperty("newsInstanceUrl"), URLEncoder.encode(name, "UTF-8")));
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     /**

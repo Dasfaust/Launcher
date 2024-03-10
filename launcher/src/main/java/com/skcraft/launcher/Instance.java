@@ -36,6 +36,8 @@ public class Instance implements Comparable<Instance> {
     private LaunchModifier launchModifier;
     private InstanceSettings settings = new InstanceSettings();
     @Getter private URL IconUrl;
+    @Getter private String domainName;
+    @Getter private URL newsUrl;
 
     @JsonIgnore private File dir;
     @JsonIgnore private URL manifestURL;
