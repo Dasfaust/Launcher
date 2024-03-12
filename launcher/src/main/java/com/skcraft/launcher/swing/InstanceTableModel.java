@@ -17,11 +17,13 @@ import javax.swing.table.AbstractTableModel;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class InstanceTableModel extends AbstractTableModel {
 
     private final InstanceList instances;
     private final Icon downloadIcon;
+    private HashMap<String, ImageIcon> instanceIcons = new HashMap<>();
 
     public InstanceTableModel(InstanceList instances) {
         this.instances = instances;
@@ -99,8 +101,13 @@ public class InstanceTableModel extends AbstractTableModel {
                 instance = instances.get(rowIndex);
 
                 try {
-                    BufferedImage img = ImageIO.read(instance.getIconUrl());
-                    return new ImageIcon(img);
+                    if (instanceIcons.containsKey(instance.getName())) {
+                        return instanceIcons.get(instance.getName());
+                    } else {
+                        BufferedImage img = ImageIO.read(instance.getIconUrl());
+                        instanceIcons.put(instance.getName(), new ImageIcon(img));
+                        return instanceIcons.get(instance.getName());
+                    }
                 } catch (IOException e) {
                     return downloadIcon;
                 }
