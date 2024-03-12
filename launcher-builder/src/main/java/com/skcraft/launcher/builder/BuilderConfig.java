@@ -12,6 +12,7 @@ import com.skcraft.launcher.model.modpack.LaunchModifier;
 import com.skcraft.launcher.model.modpack.Manifest;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -72,5 +73,4 @@ public class BuilderConfig {
 
         applicator.setUserFiles(userFiles);
     }
-
 }

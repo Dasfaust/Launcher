@@ -219,6 +219,7 @@ public class BuilderConfigDialog extends JDialog {
         SwingHelper.setTextAndResetCaret(defaultHeapText, Integer.toString(config.getDefaultHeapAllocation()));
         SwingHelper.setTextAndResetCaret(userFilesIncludeArea, SwingHelper.listToLines(config.getUserFiles().getInclude()));
         SwingHelper.setTextAndResetCaret(userFilesExcludeArea, SwingHelper.listToLines(config.getUserFiles().getExclude()));
+        isPreviewCheckbox.setSelected(config.isPreview());
         featuresModel = new FeaturePatternTableModel(config.getFeatures());
         featuresTable.setModel(featuresModel);
     }
