@@ -14,12 +14,14 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.skcraft.launcher.util.Environment;
 import lombok.Data;
+import lombok.extern.java.Log;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import java.util.List;
 import java.util.Map;
 
+@Log
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Library {
@@ -61,11 +63,23 @@ public class Library {
                 case LINUX:
                     nativeString = getNatives().get("linux");
                     break;
+                case LINUX_ARM32:
+                    nativeString = getNatives().get("linux-arm32");
+                    break;
+                case LINUX_ARM64:
+                    nativeString = getNatives().get("linux-arm64");
+                    break;
                 case WINDOWS:
                     nativeString = getNatives().get("windows");
                     break;
+                case WINDOWS_ARM64:
+                    nativeString = getNatives().get("windows-arm64");
+                    break;
                 case MAC_OS_X:
                     nativeString = getNatives().get("osx");
+                    break;
+                case MAC_OS_X_ARM64:
+                    nativeString = getNatives().get("osx-arm64");
                     break;
                 default:
                     return null;
@@ -109,7 +123,13 @@ public class Library {
                 return virtualArtifact;
             }
 
-            return getDownloads().getClassifiers().get(nativeString);
+            Artifact artifact = getDownloads().getClassifiers().get(nativeString);
+
+            if (artifact.getPath() == null) {
+                artifact.setPath(mavenNameToPath(name + ":" + nativeString));
+            }
+
+            return artifact;
         } else {
             return getDownloads().getArtifact();
         }

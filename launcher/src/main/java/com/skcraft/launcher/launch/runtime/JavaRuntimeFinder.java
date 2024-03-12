@@ -112,11 +112,11 @@ public final class JavaRuntimeFinder {
 
     private static PlatformRuntimeFinder getRuntimeFinder(Environment env) {
         switch (env.getPlatform()) {
-            case WINDOWS:
+            case WINDOWS, WINDOWS_ARM64:
                 return new WindowsRuntimeFinder();
-            case MAC_OS_X:
+            case MAC_OS_X, MAC_OS_X_ARM64:
                 return new MacRuntimeFinder();
-            case LINUX:
+            case LINUX, LINUX_ARM64, LINUX_ARM32:
                 return new LinuxRuntimeFinder();
             default:
                 return null;

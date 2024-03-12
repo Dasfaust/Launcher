@@ -23,11 +23,23 @@ public class PlatformSerializer extends JsonSerializer<Platform> {
             case WINDOWS:
                 jsonGenerator.writeString("windows");
                 break;
+            case WINDOWS_ARM64:
+                jsonGenerator.writeString("windows-arm64");
+                break;
             case MAC_OS_X:
                 jsonGenerator.writeString("osx");
                 break;
+            case MAC_OS_X_ARM64:
+                jsonGenerator.writeString("osx-arm64");
+                break;
             case LINUX:
                 jsonGenerator.writeString("linux");
+                break;
+            case LINUX_ARM32:
+                jsonGenerator.writeString("linux-arm32");
+                break;
+            case LINUX_ARM64:
+                jsonGenerator.writeString("linux-arm64");
                 break;
             case SOLARIS:
                 jsonGenerator.writeString("solaris");

@@ -270,6 +270,15 @@ public abstract class BaseUpdater {
 
                 if (!targetFile.exists()) {
                     List<URL> urls = new ArrayList<URL>();
+
+                    if (artifact.getUrl() != null) {
+                        URL url = new URL(artifact.getUrl());
+                        if (!url.toString().contains(artifact.getPath())) {
+                            url = concat(url, artifact.getPath());
+                        }
+                        urls.add(url);
+                    }
+
                     for (URL sourceUrl : sources) {
                         try {
                             urls.add(concat(sourceUrl, path));
