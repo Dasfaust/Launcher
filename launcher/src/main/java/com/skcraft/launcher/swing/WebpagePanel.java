@@ -36,14 +36,14 @@ public final class WebpagePanel extends JPanel {
 
     private final WebpagePanel self = this;
 
-    @Getter
-    private URL url;
-    private boolean activated;
+    @Getter private URL url;
+    @Getter private boolean activated;
     private JEditorPane documentView;
     private JScrollPane documentScroll;
     private JProgressBar progressBar;
     private Thread thread;
     private Border browserBorder;
+    final JButton showButton = new JButton("Load page");
 
     public static WebpagePanel forURL(URL url, boolean lazy) {
         return new WebpagePanel(url, lazy);
@@ -134,7 +134,7 @@ public final class WebpagePanel extends JPanel {
         documentScroll = new JScrollPane(documentView);
         documentScroll.setOpaque(false);
         documentScroll.setBorder(null);
-        panel.add(documentScroll, new Integer(1));
+        panel.add(documentScroll, 1);
         documentScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         synchronized (this) {
             if (browserBorder != null) {
@@ -144,7 +144,7 @@ public final class WebpagePanel extends JPanel {
 
         progressBar = new JProgressBar();
         progressBar.setIndeterminate(true);
-        panel.add(progressBar, new Integer(2));
+        panel.add(progressBar, 2);
 
         SwingHelper.removeOpaqueness(this);
         SwingHelper.removeOpaqueness(documentView);
@@ -163,7 +163,6 @@ public final class WebpagePanel extends JPanel {
                 .createEmptyBorder(4, 4, 4, 4)));
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
-        final JButton showButton = new JButton("Load page");
         showButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         showButton.addActionListener(new ActionListener() {
             @Override
@@ -186,6 +185,12 @@ public final class WebpagePanel extends JPanel {
                 new Dimension(1000, 1000)));
 
         add(panel, BorderLayout.CENTER);
+    }
+
+    public void loadPlaceholder() {
+        showButton.setVisible(false);
+        setDocument();
+        fetchAndDisplay(url);
     }
 
     /**

@@ -32,6 +32,7 @@ import java.io.File;
 import java.lang.ref.WeakReference;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
 
 import static com.skcraft.launcher.util.SharedLocale.tr;
 
@@ -49,7 +50,7 @@ public class LauncherFrame extends JFrame {
     @Getter
     private final JScrollPane instanceScroll = new JScrollPane(instancesTable);
     private WebpagePanel webViewHome;
-    private WebpagePanel webViewSelection;
+    private HashMap<String, WebpagePanel> instanceNewsFeeds = new HashMap<>();
     private JSplitPane splitPane;
     private final JTabbedPane tabbedPane = new JTabbedPane();
     private final JButton launchButton = new JButton(SharedLocale.tr("launcher.launch"));
@@ -58,6 +59,7 @@ public class LauncherFrame extends JFrame {
     @Getter private final JMenuItem consoleMenu = new JMenuItem(SharedLocale.tr("options.launcherConsole"));
     @Getter private final JMenuItem aboutMenu = new JMenuItem(SharedLocale.tr("options.about"));
     private final JButton selfUpdateButton = new JButton(SharedLocale.tr("launcher.updateLauncher"));
+    private Instance selectedInstance = null;
 
     /**
      * Create a new frame.
@@ -140,18 +142,10 @@ public class LauncherFrame extends JFrame {
         SwingHelper.flattenJSplitPane(splitPane);
         container.add(refreshButton);
         container.add(selfUpdateButton);
+        launchButton.setEnabled(false);
         container.add(launchButton);
 
         add(container, BorderLayout.CENTER);
-
-        instancesModel.addTableModelListener(new TableModelListener() {
-            @Override
-            public void tableChanged(TableModelEvent e) {
-                if (instancesTable.getRowCount() > 0) {
-                    instancesTable.setRowSelectionInterval(0, 0);
-                }
-            }
-        });
 
         instancesTable.addMouseListener(new DoubleClickToButtonAdapter(launchButton));
 
@@ -161,8 +155,12 @@ public class LauncherFrame extends JFrame {
                 loadInstances();
                 launcher.getUpdateManager().checkForUpdate(LauncherFrame.this);
                 webViewHome.browse(launcher.getNewsURL(), false);
-                if (webViewSelection != null) {
-                    webViewSelection.browse(webViewSelection.getUrl(), false);
+
+                if (selectedInstance != null) {
+                    if (instanceNewsFeeds.containsKey(selectedInstance.getName())) {
+                        WebpagePanel newsFeedPanel = instanceNewsFeeds.get(selectedInstance.getName());
+                        newsFeedPanel.browse(newsFeedPanel.getUrl(), false);
+                    }
                 }
             }
         });
@@ -206,12 +204,15 @@ public class LauncherFrame extends JFrame {
             @Override
             protected void showPopup(MouseEvent e) {
                 int index = instancesTable.rowAtPoint(e.getPoint());
-                Instance selected = null;
                 if (index >= 0) {
                     instancesTable.setRowSelectionInterval(index, index);
-                    selected = launcher.getInstances().get(index);
+                    Instance newSelectedInstance = launcher.getInstances().get(index);
+                    if (selectedInstance == null || newSelectedInstance.getName().equals(selectedInstance.getName())) {
+                        selectedInstance = newSelectedInstance;
+                    }
+                    launchButton.setEnabled(true);
                 }
-                popupInstanceMenu(e.getComponent(), e.getX(), e.getY(), selected);
+                popupInstanceMenu(e.getComponent(), e.getX(), e.getY(), selectedInstance);
             }
         });
 
@@ -221,17 +222,27 @@ public class LauncherFrame extends JFrame {
                 int index = instancesTable.rowAtPoint(e.getPoint());
                 if (index >= 0) {
                     instancesTable.setRowSelectionInterval(index, index);
-                    Instance selected = launcher.getInstances().get(index);
+                    Instance newSelectedInstance = launcher.getInstances().get(index);
+                    launchButton.setEnabled(true);
 
                     tabbedPane.setSelectedIndex(1);
 
-                    if (selected.isSelected()) {
-                        return;
-                    }
+                    if (selectedInstance == null || newSelectedInstance.getName().equals(selectedInstance.getName())) {
+                        selectedInstance = newSelectedInstance;
 
-                    URL newsUrl = selected.getNewsUrl();
-                    tabbedPane.setTitleAt(1, selected.getTitle());
-                    webViewSelection.browse(newsUrl, false);
+                        if (tabbedPane.getTabCount() > 1) {
+                            tabbedPane.remove(1);
+                            WebpagePanel newsFeed = instanceNewsFeeds.get(selectedInstance.getName());
+                            if (!newsFeed.isActivated()) {
+                                newsFeed.loadPlaceholder();
+                            }
+                            tabbedPane.addTab(selectedInstance.getTitle(), newsFeed);
+                        }
+
+                        if (tabbedPane.getSelectedIndex() == 0) {
+                            tabbedPane.setSelectedIndex(1);
+                        }
+                    }
                 }
             }
         });
@@ -403,21 +414,42 @@ public class LauncherFrame extends JFrame {
             @Override
             public void run() {
                 instancesModel.update();
-                if (instancesTable.getRowCount() > 0) {
+                int selectedRow = instancesTable.getSelectedRow();
+                if (instancesTable.isRowSelected(selectedRow) && selectedRow < instancesTable.getRowCount()) {
+                    instancesTable.setRowSelectionInterval(selectedRow, selectedRow);
+                    selectedInstance = launcher.getInstances().get(instancesTable.getSelectedRow());
+                } else if (instancesTable.getRowCount() > 0) {
                     instancesTable.setRowSelectionInterval(0, 0);
+                    selectedInstance = launcher.getInstances().get(instancesTable.getSelectedRow());
+                } else {
+                    selectedInstance = null;
                 }
+
+                instanceNewsFeeds.clear();
+                for (int i = 0; i < instancesTable.getRowCount(); i++) {
+                    Instance instance = launcher.getInstances().get(i);
+
+                    instanceNewsFeeds.put(instance.getName(), WebpagePanel.forURL(instance.getNewsUrl(), true));
+                }
+
+                if (selectedInstance != null) {
+                    if (tabbedPane.getTabCount() > 1) {
+                        tabbedPane.remove(1);
+                    }
+
+                    WebpagePanel newsFeed = instanceNewsFeeds.get(selectedInstance.getName());
+                    if (!newsFeed.isActivated()) {
+                        newsFeed.loadPlaceholder();
+                    }
+                    tabbedPane.addTab(selectedInstance.getTitle(), newsFeed);
+                }
+
                 requestFocus();
             }
         }, SwingExecutor.INSTANCE);
 
         ProgressDialog.showProgress(this, future, SharedLocale.tr("launcher.checkingTitle"), SharedLocale.tr("launcher.checkingStatus"));
         SwingHelper.addErrorDialogCallback(this, future);
-
-        if (webViewSelection == null) {
-            Instance selected = launcher.getInstances().get(instancesTable.getSelectedRow());
-            webViewSelection = createNewsPanel(selected.getNewsUrl());
-            tabbedPane.addTab(selected.getTitle(), webViewSelection);
-        }
     }
 
     private void showOptions() {
@@ -426,15 +458,15 @@ public class LauncherFrame extends JFrame {
     }
 
     private void launch() {
-        Instance instance = launcher.getInstances().get(instancesTable.getSelectedRow());
-
-        LaunchOptions options = new LaunchOptions.Builder()
-                .setInstance(instance)
-                .setListener(new LaunchListenerImpl(this))
-                .setUpdatePolicy(UpdatePolicy.UPDATE_IF_SESSION_ONLINE)
-                .setWindow(this)
-                .build();
-        launcher.getLaunchSupervisor().launch(options);
+        if (selectedInstance != null) {
+            LaunchOptions options = new LaunchOptions.Builder()
+                    .setInstance(selectedInstance)
+                    .setListener(new LaunchListenerImpl(this))
+                    .setUpdatePolicy(UpdatePolicy.UPDATE_IF_SESSION_ONLINE)
+                    .setWindow(this)
+                    .build();
+            launcher.getLaunchSupervisor().launch(options);
+        }
     }
 
     private static class LaunchListenerImpl implements LaunchListener {
