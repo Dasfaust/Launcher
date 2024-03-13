@@ -59,7 +59,8 @@ public class LauncherFrame extends JFrame {
     @Getter private final JMenuItem consoleMenu = new JMenuItem(SharedLocale.tr("options.launcherConsole"));
     @Getter private final JMenuItem aboutMenu = new JMenuItem(SharedLocale.tr("options.about"));
     private final JButton selfUpdateButton = new JButton(SharedLocale.tr("launcher.updateLauncher"));
-    private Instance selectedInstance = null;
+    @Getter private Instance selectedInstance = null;
+    private int previousSelectedRow = 0;
 
     /**
      * Create a new frame.
@@ -152,16 +153,10 @@ public class LauncherFrame extends JFrame {
         refreshButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                previousSelectedRow = instancesTable.getSelectedRow();
                 loadInstances();
-                launcher.getUpdateManager().checkForUpdate(LauncherFrame.this);
                 webViewHome.browse(launcher.getNewsURL(), false);
-
-                if (selectedInstance != null) {
-                    if (instanceNewsFeeds.containsKey(selectedInstance.getName())) {
-                        WebpagePanel newsFeedPanel = instanceNewsFeeds.get(selectedInstance.getName());
-                        newsFeedPanel.browse(newsFeedPanel.getUrl(), false);
-                    }
-                }
+                launcher.getUpdateManager().checkForUpdate(LauncherFrame.this);
             }
         });
 
@@ -207,7 +202,7 @@ public class LauncherFrame extends JFrame {
                 if (index >= 0) {
                     instancesTable.setRowSelectionInterval(index, index);
                     Instance newSelectedInstance = launcher.getInstances().get(index);
-                    if (selectedInstance == null || newSelectedInstance.getName().equals(selectedInstance.getName())) {
+                    if (selectedInstance == null || !newSelectedInstance.getName().equals(selectedInstance.getName())) {
                         selectedInstance = newSelectedInstance;
                     }
                     launchButton.setEnabled(true);
@@ -227,21 +222,9 @@ public class LauncherFrame extends JFrame {
 
                     tabbedPane.setSelectedIndex(1);
 
-                    if (selectedInstance == null || newSelectedInstance.getName().equals(selectedInstance.getName())) {
+                    if (selectedInstance == null || !newSelectedInstance.getName().equals(selectedInstance.getName())) {
                         selectedInstance = newSelectedInstance;
-
-                        if (tabbedPane.getTabCount() > 1) {
-                            tabbedPane.remove(1);
-                            WebpagePanel newsFeed = instanceNewsFeeds.get(selectedInstance.getName());
-                            if (!newsFeed.isActivated()) {
-                                newsFeed.loadPlaceholder();
-                            }
-                            tabbedPane.addTab(selectedInstance.getTitle(), newsFeed);
-                        }
-
-                        if (tabbedPane.getSelectedIndex() == 0) {
-                            tabbedPane.setSelectedIndex(1);
-                        }
+                        showInstanceNewsFeed(selectedInstance, true);
                     }
                 }
             }
@@ -414,9 +397,9 @@ public class LauncherFrame extends JFrame {
             @Override
             public void run() {
                 instancesModel.update();
-                int selectedRow = instancesTable.getSelectedRow();
-                if (instancesTable.isRowSelected(selectedRow) && selectedRow < instancesTable.getRowCount()) {
-                    instancesTable.setRowSelectionInterval(selectedRow, selectedRow);
+
+                if (previousSelectedRow < instancesTable.getRowCount()) {
+                    instancesTable.setRowSelectionInterval(previousSelectedRow, previousSelectedRow);
                     selectedInstance = launcher.getInstances().get(instancesTable.getSelectedRow());
                 } else if (instancesTable.getRowCount() > 0) {
                     instancesTable.setRowSelectionInterval(0, 0);
@@ -425,23 +408,17 @@ public class LauncherFrame extends JFrame {
                     selectedInstance = null;
                 }
 
-                instanceNewsFeeds.clear();
                 for (int i = 0; i < instancesTable.getRowCount(); i++) {
                     Instance instance = launcher.getInstances().get(i);
-
-                    instanceNewsFeeds.put(instance.getName(), WebpagePanel.forURL(instance.getNewsUrl(), true));
+                    if (!instanceNewsFeeds.containsKey(instance.getName())) {
+                        instanceNewsFeeds.put(instance.getName(), WebpagePanel.forURL(instance.getNewsUrl(), true));
+                    }
                 }
 
                 if (selectedInstance != null) {
-                    if (tabbedPane.getTabCount() > 1) {
-                        tabbedPane.remove(1);
-                    }
-
-                    WebpagePanel newsFeed = instanceNewsFeeds.get(selectedInstance.getName());
-                    if (!newsFeed.isActivated()) {
-                        newsFeed.loadPlaceholder();
-                    }
-                    tabbedPane.addTab(selectedInstance.getTitle(), newsFeed);
+                    launchButton.setEnabled(true);
+                    instanceNewsFeeds.get(selectedInstance.getName()).browse(selectedInstance.getNewsUrl(), false);
+                    showInstanceNewsFeed(selectedInstance, tabbedPane.getSelectedIndex() != 0);
                 }
 
                 requestFocus();
@@ -450,6 +427,25 @@ public class LauncherFrame extends JFrame {
 
         ProgressDialog.showProgress(this, future, SharedLocale.tr("launcher.checkingTitle"), SharedLocale.tr("launcher.checkingStatus"));
         SwingHelper.addErrorDialogCallback(this, future);
+    }
+
+    private void showInstanceNewsFeed(Instance instance, boolean switchTab) {
+        if (tabbedPane.getTabCount() > 1) {
+            tabbedPane.remove(1);
+        }
+
+        WebpagePanel newsFeed = instanceNewsFeeds.get(instance.getName());
+        if (!newsFeed.isActivated()) {
+            newsFeed.loadPlaceholder();
+        }
+
+        tabbedPane.addTab(instance.getTitle(), newsFeed);
+
+        if (switchTab) {
+            if (tabbedPane.getSelectedIndex() == 0) {
+                tabbedPane.setSelectedIndex(1);
+            }
+        }
     }
 
     private void showOptions() {

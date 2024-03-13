@@ -7,6 +7,7 @@
 package com.skcraft.launcher.swing;
 
 import com.skcraft.launcher.LauncherUtils;
+import com.skcraft.launcher.dialog.ConsoleFrame;
 import com.skcraft.launcher.util.LimitLinesDocumentListener;
 import com.skcraft.launcher.util.SimpleLogFormatter;
 
@@ -43,10 +44,12 @@ public class MessageLog extends JPanel {
     protected final SimpleAttributeSet errorAttributes;
     protected final SimpleAttributeSet infoAttributes;
     protected final SimpleAttributeSet debugAttributes;
+    private ConsoleFrame consoleFrame;
 
-    public MessageLog(int numLines, boolean colorEnabled) {
+    public MessageLog(int numLines, boolean colorEnabled, ConsoleFrame consoleFrame) {
         this.numLines = numLines;
         this.colorEnabled = colorEnabled;
+        this.consoleFrame = consoleFrame;
         
         this.highlightedAttributes = new SimpleAttributeSet();
         StyleConstants.setForeground(highlightedAttributes, Color.decode("#FFFF55"));
@@ -217,6 +220,11 @@ public class MessageLog extends JPanel {
                     int len;
                     while ((len = in.read(buffer)) != -1) {
                         String s = new String(buffer, 0, len);
+
+                        if (s.contains("OpenGL Vendor")) {
+                            consoleFrame.hideSplash();
+                        }
+
                         System.out.print(s);
                         out.append(s);
                         out.flush();

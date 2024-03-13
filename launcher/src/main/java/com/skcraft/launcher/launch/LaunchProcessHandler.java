@@ -7,6 +7,7 @@
 package com.skcraft.launcher.launch;
 
 import com.google.common.base.Function;
+import com.skcraft.launcher.DefaultLauncherSupplier;
 import com.skcraft.launcher.Launcher;
 import com.skcraft.launcher.dialog.LauncherFrame;
 import com.skcraft.launcher.dialog.ProcessConsoleFrame;
@@ -45,6 +46,8 @@ public class LaunchProcessHandler implements Function<Process, ProcessConsoleFra
                     consoleFrame.setProcess(process);
                     if (launcher.getConfig().isShowConsoleOnLaunch()) {
                         consoleFrame.setVisible(true);
+                    } else {
+                        consoleFrame.showSplash();
                     }
                     MessageLog messageLog = consoleFrame.getMessageLog();
                     messageLog.consume(process.getInputStream());

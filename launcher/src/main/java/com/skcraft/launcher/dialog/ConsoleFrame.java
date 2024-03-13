@@ -6,6 +6,7 @@
 
 package com.skcraft.launcher.dialog;
 
+import com.formdev.flatlaf.util.AnimatedIcon;
 import com.skcraft.launcher.Launcher;
 import com.skcraft.launcher.swing.LinedBoxPanel;
 import com.skcraft.launcher.swing.MessageLog;
@@ -14,6 +15,7 @@ import com.skcraft.launcher.util.PastebinPoster;
 import com.skcraft.launcher.util.SharedLocale;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.extern.java.Log;
 
 import javax.swing.*;
 import java.awt.*;
@@ -27,6 +29,7 @@ import static com.skcraft.launcher.util.SharedLocale.tr;
 /**
  * A frame capable of showing messages.
  */
+@Log
 public class ConsoleFrame extends JFrame {
 
     private static ConsoleFrame globalFrame;
@@ -36,6 +39,9 @@ public class ConsoleFrame extends JFrame {
 
     @Getter private final MessageLog messageLog;
     @Getter private LinedBoxPanel buttonsPanel;
+
+    private final JFrame splash = new JFrame();
+    private final JProgressBar progressBar = new JProgressBar();
 
     private boolean registeredGlobalLog = false;
 
@@ -57,7 +63,7 @@ public class ConsoleFrame extends JFrame {
      * @param colorEnabled true to enable a colored console
      */
     public ConsoleFrame(@NonNull String title, int numLines, boolean colorEnabled) {
-        messageLog = new MessageLog(numLines, colorEnabled);
+        messageLog = new MessageLog(numLines, colorEnabled, this);
         trayRunningIcon = SwingHelper.createImage(Launcher.class, "tray_ok.png");
         trayClosedIcon = SwingHelper.createImage(Launcher.class, "tray_closed.png");
 
@@ -80,6 +86,20 @@ public class ConsoleFrame extends JFrame {
      * Add components to the frame.
      */
     private void initComponents() {
+        splash.setTitle("Minecraft is starting...");
+        splash.setIconImage(trayRunningIcon);
+        splash.setUndecorated(true);
+        splash.setPreferredSize(new Dimension(250, 40));
+
+        JLabel label = new JLabel("<html><span style='font-size: 11px;'>Minecraft is starting...</span></html>");
+        label.setHorizontalAlignment(JLabel.CENTER);
+        splash.add(label, BorderLayout.NORTH);
+
+        progressBar.setIndeterminate(true);
+        splash.add(progressBar, BorderLayout.CENTER);
+
+        splash.pack();
+
         JButton pastebinButton = new JButton(SharedLocale.tr("console.uploadLog"));
         JButton clearLogButton = new JButton(SharedLocale.tr("console.clearLog"));
         buttonsPanel = new LinedBoxPanel(true);
@@ -150,7 +170,7 @@ public class ConsoleFrame extends JFrame {
     public static void showMessages() {
         ConsoleFrame frame = globalFrame;
         if (frame == null) {
-            frame = new ConsoleFrame(10000, false);
+            frame = new ConsoleFrame(1000, false);
             globalFrame = frame;
             frame.setTitle(SharedLocale.tr("console.launcherConsoleTitle"));
             frame.registerLoggerHandler();
@@ -169,4 +189,13 @@ public class ConsoleFrame extends JFrame {
         }
     }
 
+    public synchronized void showSplash() {
+        splash.setLocationRelativeTo(null);
+        splash.setVisible(true);
+        splash.requestFocus();
+    }
+
+    public synchronized void hideSplash() {
+        splash.setVisible(false);
+    }
 }

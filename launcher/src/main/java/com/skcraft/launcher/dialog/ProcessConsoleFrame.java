@@ -6,6 +6,7 @@
 
 package com.skcraft.launcher.dialog;
 
+import com.formdev.flatlaf.util.AnimatedIcon;
 import com.skcraft.launcher.swing.LinedBoxPanel;
 import com.skcraft.launcher.swing.SwingHelper;
 import com.skcraft.launcher.util.SharedLocale;
@@ -28,6 +29,7 @@ public class ProcessConsoleFrame extends ConsoleFrame {
     private JButton killButton;
     private JButton minimizeButton;
     private TrayIcon trayIcon;
+
 
     @Getter private Process process;
     @Getter @Setter private boolean killOnClose;
@@ -230,5 +232,4 @@ public class ProcessConsoleFrame extends ConsoleFrame {
         setVisible(true);
         requestFocus();
     }
-
 }
