@@ -191,6 +191,13 @@ public class LauncherFrame extends JFrame {
                         selectedInstance = newSelectedInstance;
                     }
                     launchButton.setEnabled(true);
+
+                    tabbedPane.setSelectedIndex(1);
+
+                    if (selectedInstance == null || !newSelectedInstance.getName().equals(selectedInstance.getName())) {
+                        selectedInstance = newSelectedInstance;
+                        showInstanceNewsFeed(selectedInstance, true);
+                    }
                 }
                 popupInstanceMenu(e.getComponent(), e.getX(), e.getY(), selectedInstance);
             }
