@@ -22,12 +22,12 @@ import java.util.HashMap;
 public class InstanceTableModel extends AbstractTableModel {
 
     private final InstanceList instances;
-    private final Icon downloadIcon;
+    private final Icon missingIcon;
     private HashMap<String, ImageIcon> instanceIcons = new HashMap<>();
 
     public InstanceTableModel(InstanceList instances) {
         this.instances = instances;
-        downloadIcon = SwingHelper.createIcon(Launcher.class, "download_icon.png", 14, 14);
+        missingIcon = SwingHelper.createIcon(Launcher.class, "missing_remote.png", 14, 14);
     }
 
     public void update() {
@@ -109,7 +109,7 @@ public class InstanceTableModel extends AbstractTableModel {
                         return instanceIcons.get(instance.getName());
                     }
                 } catch (IOException e) {
-                    return downloadIcon;
+                    return missingIcon;
                 }
             case 1:
                 instance = instances.get(rowIndex);
