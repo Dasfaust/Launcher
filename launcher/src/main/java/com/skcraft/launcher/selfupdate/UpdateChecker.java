@@ -34,7 +34,7 @@ public class UpdateChecker implements Callable<LatestVersionInfo> {
         try {
             UpdateChecker.log.info("Checking for update...");
 
-            URL url = HttpRequest.url(launcher.getProperties().getProperty("selfUpdateUrl"));
+            URL url = HttpRequest.url(String.format(launcher.getProperties().getProperty("selfUpdateUrl"), launcher.getConfig().getGameKey()));
 
             LatestVersionInfo versionInfo = HttpRequest.get(url)
                     .execute()

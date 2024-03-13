@@ -94,7 +94,7 @@ public class LauncherFrame extends JFrame {
 
     private void initComponents() {
         JPanel container = createContainerPanel();
-        container.setLayout(new MigLayout("fill, insets dialog", "[][]push[][]", "[grow][]"));
+        container.setLayout(new MigLayout("fill, insets dialog", "[]push[]", "[grow][]"));
 
         tabbedPane.setBorder(null);
         tabbedPane.setOpaque(false);
