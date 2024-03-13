@@ -58,7 +58,6 @@ public class LauncherFrame extends JFrame {
     @Getter private final JMenuItem optionsMenu = new JMenuItem(SharedLocale.tr("launcher.options"));
     @Getter private final JMenuItem consoleMenu = new JMenuItem(SharedLocale.tr("options.launcherConsole"));
     @Getter private final JMenuItem aboutMenu = new JMenuItem(SharedLocale.tr("options.about"));
-    private final JButton selfUpdateButton = new JButton(SharedLocale.tr("launcher.updateLauncher"));
     @Getter private Instance selectedInstance = null;
     private int previousSelectedRow = 0;
 
@@ -85,6 +84,10 @@ public class LauncherFrame extends JFrame {
             @Override
             public void run() {
                 loadInstances();
+
+                if (launcher.getUpdateManager().getPendingUpdate()) {
+                    launcher.getUpdateManager().performUpdate(LauncherFrame.this);
+                }
             }
         });
     }
@@ -99,16 +102,6 @@ public class LauncherFrame extends JFrame {
         tabbedPane.addTab(SharedLocale.tr("launcher.home"), webViewHome);
 
         splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, instanceScroll, tabbedPane);
-        selfUpdateButton.setVisible(launcher.getUpdateManager().getPendingUpdate());
-
-        launcher.getUpdateManager().addPropertyChangeListener(new PropertyChangeListener() {
-            @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-                if (evt.getPropertyName().equals("pendingUpdate")) {
-                    selfUpdateButton.setVisible((Boolean) evt.getNewValue());
-                }
-            }
-        });
 
         int ctrlKeyMask = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
 
@@ -142,7 +135,6 @@ public class LauncherFrame extends JFrame {
         container.add(splitPane, "grow, wrap, span 5, gapbottom unrel, w null:680, h null:350");
         SwingHelper.flattenJSplitPane(splitPane);
         container.add(refreshButton);
-        container.add(selfUpdateButton);
         launchButton.setEnabled(false);
         container.add(launchButton);
 
@@ -157,13 +149,6 @@ public class LauncherFrame extends JFrame {
                 loadInstances();
                 webViewHome.browse(launcher.getNewsURL(), false);
                 launcher.getUpdateManager().checkForUpdate(LauncherFrame.this);
-            }
-        });
-
-        selfUpdateButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                launcher.getUpdateManager().performUpdate(LauncherFrame.this);
             }
         });
 
@@ -496,5 +481,4 @@ public class LauncherFrame extends JFrame {
             launcher.getUpdateManager().checkForUpdate(newLauncherWindow);
         }
     }
-
 }
