@@ -221,7 +221,7 @@ public class MessageLog extends JPanel {
                     while ((len = in.read(buffer)) != -1) {
                         String s = new String(buffer, 0, len);
 
-                        if (s.contains("OpenGL Vendor")) {
+                        if (s.contains("OpenGL Vendor") || s.contains("LWJGL Version")) {
                             consoleFrame.hideSplash();
                         }
 
