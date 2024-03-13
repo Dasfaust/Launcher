@@ -27,7 +27,7 @@ public class InstanceTableModel extends AbstractTableModel {
 
     public InstanceTableModel(InstanceList instances) {
         this.instances = instances;
-        missingIcon = SwingHelper.createIcon(Launcher.class, "missing_remote.png", 14, 14);
+        missingIcon = SwingHelper.createIcon(Launcher.class, "missing_remote.png", 64, 64);
     }
 
     public void update() {
