@@ -101,10 +101,15 @@ public abstract class BaseUpdater {
                 .saveContent(instance.getManifestPath())
                 .asJson(Manifest.class);
 
-        instance.getSettings().setMemorySettings(new MemorySettings());
-        instance.getSettings().getMemorySettings().setMinMemory(manifest.getDefaultHeapAllocation() * 1024);
-        instance.getSettings().getMemorySettings().setMaxMemory(manifest.getDefaultHeapAllocation() * 1024);
-        instance.getSettings().setCustomJvmArgs(manifest.getDefaultJVMArguments());
+        if (instance.getSettings().getMemorySettings() == null) {
+            instance.getSettings().setMemorySettings(new MemorySettings());
+            instance.getSettings().getMemorySettings().setMinMemory(manifest.getDefaultHeapAllocation() * 1024);
+            instance.getSettings().getMemorySettings().setMaxMemory(manifest.getDefaultHeapAllocation() * 1024);
+        }
+
+        if (instance.getSettings().getCustomJvmArgs() == null || instance.getSettings().getCustomJvmArgs().isEmpty()) {
+            instance.getSettings().setCustomJvmArgs(manifest.getDefaultJVMArguments());
+        }
 
         if (manifest.getMinimumVersion() > Launcher.PROTOCOL_VERSION) {
             throw new LauncherException("Update required", SharedLocale.tr("errors.updateRequiredError"));

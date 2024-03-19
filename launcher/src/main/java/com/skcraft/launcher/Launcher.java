@@ -451,8 +451,6 @@ public final class Launcher {
                 try {
                     Launcher launcher = createFromArguments(args);
                     SwingHelper.setSwingProperties(tr("launcher.appTitle", launcher.getVersion()));
-                    //FlatOneDarkIJTheme.installLafInfo();
-                    //FlatOneDarkIJTheme.setup();
                     FlatDarkLaf.setup();
                     launcher.showLauncherWindow();
                 } catch (Throwable t) {
