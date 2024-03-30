@@ -221,8 +221,12 @@ public class MessageLog extends JPanel {
                     while ((len = in.read(buffer)) != -1) {
                         String s = new String(buffer, 0, len);
 
-                        if (s.contains("OpenGL Vendor") || s.contains("LWJGL Version")) {
-                            consoleFrame.hideSplash();
+                        if (consoleFrame.isSplashVisible()) {
+                            // Try to detect when the game window appears, it's a bit different for each MC version
+                            // There's probably a better way to do this
+                            if (s.contains("OpenGL Vendor") || s.contains("LWJGL Version") || s.contains("EARLYDISPLAY")) {
+                                consoleFrame.hideSplash();
+                            }
                         }
 
                         System.out.print(s);

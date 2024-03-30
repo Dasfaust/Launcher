@@ -195,6 +195,10 @@ public class ConsoleFrame extends JFrame {
         splash.requestFocus();
     }
 
+    public boolean isSplashVisible() {
+        return splash.isVisible();
+    }
+
     public synchronized void hideSplash() {
         splash.setVisible(false);
     }

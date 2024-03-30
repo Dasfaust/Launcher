@@ -71,6 +71,17 @@ public class LaunchProcessHandler implements Function<Process, ProcessConsoleFra
             public void run() {
                 if (consoleFrame != null) {
                     consoleFrame.setProcess(null);
+
+                    if (!launcher.getConfig().isShowConsoleOnLaunch() && process != null && process.exitValue() != 0) {
+                        consoleFrame.setVisible(true);
+                        consoleFrame.setLocationRelativeTo(null);
+                        consoleFrame.setTitle("Minecraft Has Crashed");
+                    }
+
+                    if (consoleFrame.isSplashVisible()) {
+                        consoleFrame.hideSplash();
+                    }
+
                     consoleFrame.requestFocus();
                 }
             }
