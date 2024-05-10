@@ -281,11 +281,16 @@ public class Runner implements Callable<Process>, ProgressObservable {
         builder.setMaxMemory(maxMemory);
         builder.setPermGen(permGen);
 
-        JavaRuntime selectedRuntime = Optional.ofNullable(instance.getSettings().getRuntime())
-                .orElseGet(() -> Optional.ofNullable(versionManifest.getJavaVersion())
-                        .flatMap(JavaRuntimeFinder::findBestJavaRuntime)
-                        .orElse(config.getJavaRuntime())
-                );
+        JavaRuntime selectedRuntime;
+        if (config.getJavaRuntime() != null) {
+           selectedRuntime = config.getJavaRuntime();
+        } else {
+            selectedRuntime = Optional.ofNullable(instance.getSettings().getRuntime())
+                    .orElseGet(() -> Optional.ofNullable(versionManifest.getJavaVersion())
+                            .flatMap(JavaRuntimeFinder::findBestJavaRuntime)
+                            .orElse(config.getJavaRuntime())
+                    );
+        }
 
         // Builder defaults to the PATH `java` if the runtime is null
         builder.setRuntime(selectedRuntime);
