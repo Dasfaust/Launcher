@@ -277,11 +277,20 @@ public abstract class BaseUpdater {
                     List<URL> urls = new ArrayList<URL>();
 
                     if (artifact.getUrl() != null) {
-                        URL url = new URL(artifact.getUrl());
-                        if (!url.toString().contains(artifact.getPath())) {
-                            url = concat(url, artifact.getPath());
+                        try
+                        {
+                            URL url = new URL(artifact.getUrl());
+                            if (!url.toString().contains(artifact.getPath())) {
+                                url = concat(url, artifact.getPath());
+                            }
+                            urls.add(url);
+                        } catch (MalformedURLException e) {
+                            log.log(Level.WARNING, String.format("Bad default source URL for library %s: %s", artifact.getPath(), artifact.getUrl()));
                         }
-                        urls.add(url);
+                    }
+                    else
+                    {
+                        log.log(Level.WARNING, String.format("No default source for library %s", artifact.getPath()));
                     }
 
                     for (URL sourceUrl : sources) {
@@ -290,6 +299,11 @@ public abstract class BaseUpdater {
                         } catch (MalformedURLException e) {
                             log.log(Level.WARNING, "Bad source URL for library: " + sourceUrl);
                         }
+                    }
+
+                    log.log(Level.INFO, String.format("Added sources for library %s:", artifact.getPath()));
+                    for (URL sourceUrl : sources) {
+                        log.log(Level.INFO, sourceUrl.toString());
                     }
 
                     File tempFile = installer.getDownloader().download(urls, "", size,
