@@ -58,6 +58,8 @@ public class ConfigurationDialog extends JDialog {
     private final JButton cancelButton = new JButton(SharedLocale.tr("button.cancel"));
     private final JCheckBox useInstanceJVMSettingsCheck = new JCheckBox(SharedLocale.tr("options.useInstanceJVMSettings"));
     private final JCheckBox showConsoleOnLaunch = new JCheckBox(SharedLocale.tr("options.showConsoleOnLaunch"));
+    private final JCheckBox forceSelectedJavaRuntimeCheck = new JCheckBox(SharedLocale.tr("options.forceSelectedJavaRuntime"));
+    private final JCheckBox disableRuntimeWarningCheck = new JCheckBox(SharedLocale.tr("options.disableRuntimeWarning"));
 
     /**
      * Create a new configuration dialog.
@@ -106,15 +108,19 @@ public class ConfigurationDialog extends JDialog {
         mapper.map(gameKeyText, "gameKey");
         mapper.map(useInstanceJVMSettingsCheck, "useInstanceJVMSettings");
         mapper.map(showConsoleOnLaunch, "showConsoleOnLaunch");
+        mapper.map(forceSelectedJavaRuntimeCheck, "forceSelectedJavaRuntime");
+        mapper.map(disableRuntimeWarningCheck, "disableRuntimeWarning");
 
         mapper.copyFromObject();
     }
 
     private void initComponents() {
         launcherSettingsPanel.addRow(showConsoleOnLaunch);
+        launcherSettingsPanel.addRow(disableRuntimeWarningCheck);
         tabbedPane.addTab(SharedLocale.tr("options.launcherTab"), SwingHelper.alignTabbedPane(launcherSettingsPanel));
 
         javaSettingsPanel.addRow(new JLabel(SharedLocale.tr("options.jvmPath")), jvmRuntime);
+        javaSettingsPanel.addRow(forceSelectedJavaRuntimeCheck);
         javaSettingsPanel.addRow(useInstanceJVMSettingsCheck);
         if (config.isUseInstanceJVMSettings()) {
             toggleJVMOptionsEnabled(false);

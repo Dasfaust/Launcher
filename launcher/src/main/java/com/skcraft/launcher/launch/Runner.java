@@ -153,7 +153,10 @@ public class Runner implements Callable<Process>, ProgressObservable {
 
         callLaunchModifier();
 
-        verifyJavaRuntime();
+        if (!launcher.getConfig().isDisableRuntimeWarning())
+        {
+            verifyJavaRuntime();
+        }
 
         ProcessBuilder processBuilder = new ProcessBuilder(builder.buildCommand());
         processBuilder.directory(instance.getContentDir());
@@ -282,7 +285,7 @@ public class Runner implements Callable<Process>, ProgressObservable {
         builder.setPermGen(permGen);
 
         JavaRuntime selectedRuntime;
-        if (config.getJavaRuntime() != null) {
+        if (config.getJavaRuntime() != null && config.isForceSelectedJavaRuntime()) {
            selectedRuntime = config.getJavaRuntime();
         } else {
             selectedRuntime = Optional.ofNullable(instance.getSettings().getRuntime())

@@ -42,6 +42,8 @@ public class Configuration {
     private int serverPort = 25565;
     private boolean useInstanceJVMSettings = true;
     private boolean showConsoleOnLaunch = false;
+    private boolean forceSelectedJavaRuntime = false;
+    private boolean disableRuntimeWarning = false;
 
     @Override
     public boolean equals(Object o) {
