@@ -11,12 +11,17 @@ import com.google.common.hash.Hashing;
 import com.google.common.io.Files;
 import com.skcraft.launcher.model.modpack.FileInstall;
 import com.skcraft.launcher.model.modpack.Manifest;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.extern.java.Log;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
 
 /**
  * Walks a path and adds hashed path versions to the given
@@ -25,10 +30,19 @@ import java.io.IOException;
 @Log
 public class ClientFileCollector extends DirectoryWalker {
 
+    @AllArgsConstructor
+    @EqualsAndHashCode
+    private static class FileEntry
+    {
+        private final File file;
+        private final String relPath;
+    }
+
     private final Manifest manifest;
     private final PropertiesApplicator applicator;
     private final File destDir;
     private HashFunction hf = Hashing.sha1();
+    private final ArrayList<FileEntry> fileEntries = new ArrayList<>();
 
     /**
      * Create a new collector.
@@ -56,36 +70,56 @@ public class ClientFileCollector extends DirectoryWalker {
             return;
         }
 
-        FileInstall entry = new FileInstall();
-        String hash = Files.hash(file, hf).toString();
-        String to = FilenameUtils.separatorsToUnix(FilenameUtils.normalize(relPath));
-        
-        // url.txt override file
-        File urlFile = new File(file.getAbsoluteFile().getParentFile(),
-                file.getName() + FileUrlScanner.URL_FILE_SUFFIX);
-        String location;
-        boolean copy = true;
-        if (urlFile.exists() && FileUrlScanner.isEnabled()) {
-            FileUrlRedirect redirect = FileUrlRedirect.fromFile(urlFile);
+        fileEntries.add(new FileEntry(file, relPath));
+    }
 
-            location = redirect.getUrl().toString();
-            copy = false;
-        } else {
-            location = hash.substring(0, 2) + "/" + hash.substring(2, 4) + "/" + hash;
+    @Override
+    protected void onWalkComplete() throws IOException
+    {
+        AtomicBoolean failed = new AtomicBoolean(false);
+        fileEntries.parallelStream().forEach(fileEntry -> {
+            try {
+                FileInstall entry = new FileInstall();
+                String hash = Files.hash(fileEntry.file, hf).toString();
+                String to = FilenameUtils.separatorsToUnix(FilenameUtils.normalize(fileEntry.relPath));
+
+                // url.txt override file
+                File urlFile = new File(fileEntry.file.getAbsoluteFile().getParentFile(),
+                        fileEntry.file.getName() + FileUrlScanner.URL_FILE_SUFFIX);
+                String location;
+                boolean copy = true;
+                if (urlFile.exists() && FileUrlScanner.isEnabled()) {
+                    FileUrlRedirect redirect = FileUrlRedirect.fromFile(urlFile);
+
+                    location = redirect.getUrl().toString();
+                    copy = false;
+                } else {
+                    location = hash.substring(0, 2) + "/" + hash.substring(2, 4) + "/" + hash;
+                }
+
+                File destPath = new File(destDir, location);
+                entry.setHash(hash);
+                entry.setLocation(location);
+                entry.setTo(to);
+                entry.setSize(fileEntry.file.length());
+                applicator.apply(entry);
+                destPath.getParentFile().mkdirs();
+                //ClientFileCollector.log.info(String.format("Adding %s from %s...", fileEntry.relPath, fileEntry.file.getAbsolutePath()));
+                if (copy) {
+                    Files.copy(fileEntry.file, destPath);
+                }
+                manifest.getTasks().add(entry);
+            } catch(IOException e) {
+                log.log(Level.SEVERE, String.format("Error processing file %s:", fileEntry.file.getName()), e);
+                failed.set(true);
+            }
+        });
+        fileEntries.clear();
+
+        if (failed.get())
+        {
+            throw new IOException("Failed to process some modpack files. Please check the log.");
         }
-        
-        File destPath = new File(destDir, location);
-        entry.setHash(hash);
-        entry.setLocation(location);
-        entry.setTo(to);
-        entry.setSize(file.length());
-        applicator.apply(entry);
-        destPath.getParentFile().mkdirs();
-        ClientFileCollector.log.info(String.format("Adding %s from %s...", relPath, file.getAbsolutePath()));
-        if (copy) {
-            Files.copy(file, destPath);
-        }
-        manifest.getTasks().add(entry);
     }
 
     public static DirectoryBehavior getDirectoryBehavior(@NonNull String name) {
@@ -101,5 +135,4 @@ public class ClientFileCollector extends DirectoryWalker {
             return DirectoryBehavior.CONTINUE;
         }
     }
-
 }

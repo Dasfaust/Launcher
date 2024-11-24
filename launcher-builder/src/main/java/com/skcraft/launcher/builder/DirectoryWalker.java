@@ -41,6 +41,7 @@ public abstract class DirectoryWalker {
      */
     public final void walk(@NonNull File dir) throws IOException {
         walk(dir, "");
+        onWalkComplete();
     }
 
     /**
@@ -95,5 +96,5 @@ public abstract class DirectoryWalker {
      */
     protected abstract void onFile(File file, String relPath) throws IOException;
 
-
+    protected void onWalkComplete() throws IOException {}
 }
