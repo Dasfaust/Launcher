@@ -6,8 +6,12 @@
 
 package com.skcraft.launcher.swing;
 
+import com.skcraft.launcher.Instance;
+import com.skcraft.launcher.Launcher;
 import com.skcraft.launcher.LauncherUtils;
 import com.skcraft.launcher.dialog.ConsoleFrame;
+import com.skcraft.launcher.dialog.LauncherFrame;
+import com.skcraft.launcher.model.modpack.Manifest;
 import com.skcraft.launcher.util.LimitLinesDocumentListener;
 import com.skcraft.launcher.util.SimpleLogFormatter;
 
@@ -46,6 +50,8 @@ public class MessageLog extends JPanel {
     protected final SimpleAttributeSet debugAttributes;
     private ConsoleFrame consoleFrame;
 
+    private String[] splashDismissals;
+
     public MessageLog(int numLines, boolean colorEnabled, ConsoleFrame consoleFrame) {
         this.numLines = numLines;
         this.colorEnabled = colorEnabled;
@@ -58,6 +64,19 @@ public class MessageLog extends JPanel {
         StyleConstants.setForeground(errorAttributes, Color.decode("#FF5555"));
         this.infoAttributes = new SimpleAttributeSet();
         this.debugAttributes = new SimpleAttributeSet();
+
+        if (Launcher.getInstance().getInstances().size() > 0)
+        {
+            Instance instance = Launcher.getInstance().getInstances().get(0);
+            if (instance != null)
+            {
+                splashDismissals = instance.getSettings().getSplashScreenDismissals().split("\n");
+            }
+            else
+            {
+                splashDismissals = Manifest.DEFAULT_SPLASH_DISMISSALS.split("\n");
+            }
+        }
 
         setLayout(new BorderLayout());
         
@@ -222,10 +241,12 @@ public class MessageLog extends JPanel {
                         String s = new String(buffer, 0, len);
 
                         if (consoleFrame.isSplashVisible()) {
-                            // Try to detect when the game window appears, it's a bit different for each MC version
-                            // There's probably a better way to do this
-                            if (s.contains("OpenGL Vendor") || s.contains("LWJGL Version") || s.contains("EARLYDISPLAY")) {
-                                consoleFrame.hideSplash();
+                            for (String dismissal : splashDismissals)
+                            {
+                                if (s.contains(dismissal)) {
+                                    consoleFrame.hideSplash();
+                                    break;
+                                }
                             }
                         }
 

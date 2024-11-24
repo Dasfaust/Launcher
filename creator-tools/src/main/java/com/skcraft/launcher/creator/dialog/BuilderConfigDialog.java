@@ -30,6 +30,7 @@ public class BuilderConfigDialog extends JDialog {
     private final JCheckBox isPreviewCheckbox = new JCheckBox("Is Preview");
     private final JTextArea launchFlagsArea = new JTextArea(10, 40);
     private final JTextArea defaultJVMFlagsArea = new JTextArea(10, 40);
+    private final JTextArea splashScreenDismissals = new JTextArea(10, 40);
     private final JTextField defaultHeapText = new JTextField(30);
     private final JTextArea userFilesIncludeArea = new JTextArea(15, 40);
     private final JTextArea userFilesExcludeArea = new JTextArea(8, 40);
@@ -61,11 +62,13 @@ public class BuilderConfigDialog extends JDialog {
         gameVersionText.setComponentPopupMenu(TextFieldPopupMenu.INSTANCE);
         launchFlagsArea.setComponentPopupMenu(TextFieldPopupMenu.INSTANCE);
         defaultJVMFlagsArea.setComponentPopupMenu(TextFieldPopupMenu.INSTANCE);
+        splashScreenDismissals.setComponentPopupMenu(TextFieldPopupMenu.INSTANCE);
         defaultHeapText.setComponentPopupMenu(TextFieldPopupMenu.INSTANCE);
         userFilesIncludeArea.setComponentPopupMenu(TextFieldPopupMenu.INSTANCE);
 
         launchFlagsArea.setFont(nameText.getFont());
         defaultJVMFlagsArea.setFont(nameText.getFont());
+        splashScreenDismissals.setFont(nameText.getFont());
         userFilesIncludeArea.setFont(nameText.getFont());
         userFilesExcludeArea.setFont(nameText.getFont());
 
@@ -142,8 +145,10 @@ public class BuilderConfigDialog extends JDialog {
         container.add(SwingHelper.wrapScrollPane(launchFlagsArea), "span");
         container.add(new JLabel("Default JVM Arguments:"), "wrap");
         container.add(SwingHelper.wrapScrollPane(defaultJVMFlagsArea), "span");
-        container.add(new JLabel("Default Heap Amount:"));
-        container.add(defaultHeapText);
+        container.add(new JLabel("Default Heap Amount:"),  "wrap");
+        container.add(defaultHeapText, "span");
+        container.add(new JLabel("Splash Screen Dismissal:"),  "wrap");
+        container.add(SwingHelper.wrapScrollPane(splashScreenDismissals), "span");
 
         return container;
     }
@@ -216,6 +221,7 @@ public class BuilderConfigDialog extends JDialog {
         SwingHelper.setTextAndResetCaret(gameVersionText, config.getGameVersion());
         SwingHelper.setTextAndResetCaret(launchFlagsArea, SwingHelper.listToLines(config.getLaunchModifier().getFlags()));
         SwingHelper.setTextAndResetCaret(defaultJVMFlagsArea, config.getDefaultJVMArguments());
+        SwingHelper.setTextAndResetCaret(splashScreenDismissals, config.getSplashScreenDismissals());
         SwingHelper.setTextAndResetCaret(defaultHeapText, Integer.toString(config.getDefaultHeapAllocation()));
         SwingHelper.setTextAndResetCaret(userFilesIncludeArea, SwingHelper.listToLines(config.getUserFiles().getInclude()));
         SwingHelper.setTextAndResetCaret(userFilesExcludeArea, SwingHelper.listToLines(config.getUserFiles().getExclude()));
@@ -230,6 +236,7 @@ public class BuilderConfigDialog extends JDialog {
         config.setGameVersion(gameVersionText.getText().trim());
         config.setDefaultHeapAllocation(Integer.parseInt(defaultHeapText.getText()));
         config.setDefaultJVMArguments(defaultJVMFlagsArea.getText());
+        config.setSplashScreenDismissals(splashScreenDismissals.getText());
         config.setPreview(isPreviewCheckbox.isSelected());
 
         LaunchModifier launchModifier = config.getLaunchModifier();

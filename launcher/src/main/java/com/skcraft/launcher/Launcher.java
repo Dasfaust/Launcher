@@ -53,7 +53,9 @@ import static com.skcraft.launcher.util.SharedLocale.tr;
 @Log
 public final class Launcher {
 
-    public static final int PROTOCOL_VERSION = 4;
+    public static final int PROTOCOL_VERSION = 5;
+    @Getter
+    private static Launcher instance;
 
     @Getter
     private final ListeningExecutorService executor = MoreExecutors.listeningDecorator(Executors.newCachedThreadPool());
@@ -88,6 +90,8 @@ public final class Launcher {
      * @throws java.io.IOException on load error
      */
     public Launcher(@NonNull File baseDir, @NonNull File configDir) throws IOException {
+        instance = this;
+
         SharedLocale.loadBundle("com.skcraft.launcher.lang.Launcher", Locale.getDefault());
 
         this.baseDir = baseDir.getAbsoluteFile();

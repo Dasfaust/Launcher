@@ -15,6 +15,7 @@ import com.skcraft.launcher.LauncherUtils;
 import com.skcraft.launcher.install.Installer;
 import com.skcraft.launcher.model.loader.LoaderManifest;
 import com.skcraft.launcher.model.minecraft.VersionManifest;
+import com.skcraft.launcher.update.BaseUpdater;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -31,7 +32,8 @@ import java.util.Map;
 @EqualsAndHashCode(callSuper = true)
 public class Manifest extends BaseManifest {
 
-    public static final int MIN_PROTOCOL_VERSION = 3;
+    public static final int MIN_PROTOCOL_VERSION = 5;
+    public static final String DEFAULT_SPLASH_DISMISSALS = "OpenGL Vendor\nLWJGL Version\nEARLYDISPLAY";
 
     private int minimumVersion;
     private URL baseUrl;
@@ -49,6 +51,7 @@ public class Manifest extends BaseManifest {
     private Map<String, LoaderManifest> loaders = new HashMap<String, LoaderManifest>();
     private int defaultHeapAllocation;
     private String defaultJVMArguments;
+    private String splashScreenDismissals;
     private boolean isPreview;
 
     @JsonIgnore
@@ -93,6 +96,11 @@ public class Manifest extends BaseManifest {
         if (gameVersion != null) {
             setGameVersion(gameVersion);
         }
+    }
+
+    public String getSplashScreenDismissals()
+    {
+        return splashScreenDismissals == null ? DEFAULT_SPLASH_DISMISSALS : splashScreenDismissals;
     }
 
     public void update(Instance instance) {

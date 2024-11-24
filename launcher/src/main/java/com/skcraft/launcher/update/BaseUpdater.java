@@ -111,6 +111,8 @@ public abstract class BaseUpdater {
             instance.getSettings().setCustomJvmArgs(manifest.getDefaultJVMArguments());
         }
 
+        instance.getSettings().setSplashScreenDismissals(manifest.getSplashScreenDismissals());
+
         if (manifest.getMinimumVersion() > Launcher.PROTOCOL_VERSION) {
             throw new LauncherException("Update required", SharedLocale.tr("errors.updateRequiredError"));
         }

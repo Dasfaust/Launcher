@@ -31,6 +31,7 @@ public class BuilderConfig {
     private String defaultJVMArguments;
     private int defaultHeapAllocation;
     private boolean isPreview;
+    private String splashScreenDismissals;
 
     public void setLaunchModifier(LaunchModifier launchModifier) {
         this.launchModifier = launchModifier != null ? launchModifier : new LaunchModifier();
@@ -52,14 +53,25 @@ public class BuilderConfig {
         this.defaultHeapAllocation = Math.max(1, amount);
     }
 
+    public String getSplashScreenDismissals()
+    {
+        return splashScreenDismissals == null ? Manifest.DEFAULT_SPLASH_DISMISSALS : splashScreenDismissals;
+    }
+
+    public void setSplashScreenDismissals(String splashScreenDismissals)
+    {
+        this.splashScreenDismissals = splashScreenDismissals == null ? Manifest.DEFAULT_SPLASH_DISMISSALS : splashScreenDismissals;
+    }
+
     public void update(Manifest manifest) {
         manifest.updateName(getName());
         manifest.updateTitle(getTitle());
         manifest.updateGameVersion(getGameVersion());
         manifest.setLaunchModifier(getLaunchModifier());
-        manifest.setDefaultJVMArguments(defaultJVMArguments);
-        manifest.setDefaultHeapAllocation(defaultHeapAllocation);
-        manifest.setPreview(isPreview);
+        manifest.setDefaultJVMArguments(getDefaultJVMArguments());
+        manifest.setDefaultHeapAllocation(getDefaultHeapAllocation());
+        manifest.setPreview(isPreview());
+        manifest.setSplashScreenDismissals(getSplashScreenDismissals());
     }
 
     public void registerProperties(PropertiesApplicator applicator) {
