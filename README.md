@@ -1,15 +1,25 @@
-# Changes
+# About This Fork
 Adapted for use with [Depot](https://github.com/Dasfaust/Depot/), a backend built with Strapi and Discord.js
+
+## Changes Summary
+
 - Switched styling to FlatDarkLaf
 - Added the ability to ship default JVM flags and heap values that show up in the instance settings panel
 - Improved toggling between launcher and instance JVM settings
-- Added per-instance icons and newsfeeds
+- Added per-instance icons and newsfeeds with caching
 - Added an option to disable the console from opening when launching an instance
-- Supports downloading modpacks from multiple package sources
+- Improved library resolution and ARM support
+- Always self-updates
 
 ## Screenshots
 
 ![screenshot](https://github.com/Dasfaust/Launcher/blob/master/docs/1.1.1_screenshot.png?raw=true)
+
+![screenshot](https://github.com/Dasfaust/Launcher/blob/master/docs/1.3.2_screenshot.png?raw=true)
+
+![screenshot](https://github.com/Dasfaust/Launcher/blob/master/docs/1.3.2_options_launcher.png?raw=true)
+
+![screenshot](https://github.com/Dasfaust/Launcher/blob/master/docs/1.3.2_options_java.png?raw=true)
 
 SKCraft Launcher
 ================
