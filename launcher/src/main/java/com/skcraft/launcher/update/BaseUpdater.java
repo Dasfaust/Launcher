@@ -282,7 +282,7 @@ public abstract class BaseUpdater {
                         try
                         {
                             URL url = new URL(artifact.getUrl());
-                            if (!url.toString().contains(artifact.getPath())) {
+                            if (!url.toString().endsWith(".jar")) {
                                 url = concat(url, artifact.getPath());
                             }
                             urls.add(url);
